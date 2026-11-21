@@ -38,7 +38,7 @@ class SettingsPage extends StatefulWidget implements PageShape {
   State<SettingsPage> createState() => _SettingsState();
 }
 
-const url = 'https://rustdesk.com/';
+const url = 'https://pierrecazaban.github.io/accoste/';
 
 enum KeepScreenOn {
   never,
@@ -1212,7 +1212,7 @@ void showAbout(OverlayDialogManager dialogManager) {
         Text('Version: $version'),
         InkWell(
             onTap: () async {
-              const url = 'https://rustdesk.com/';
+              const url = 'https://pierrecazaban.github.io/accoste/';
               await launchUrl(Uri.parse(url));
             },
             child: Padding(

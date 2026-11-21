@@ -1,0 +1,25 @@
+name: Accoste — compilation et publication
+
+# Pousser une étiquette (ex. v1.5.3) compile Windows, macOS et Android
+# et publie les installeurs dans une « release » GitHub portant ce nom.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      etiquette:
+        description: "Nom de la release à créer ou compléter"
+        required: true
+        default: "essai"
+
+permissions:
+  contents: write
+
+jobs:
+  compiler:
+    uses: ./.github/workflows/flutter-build.yml
+    secrets: inherit
+    with:
+      upload-artifact: true
+      upload-tag: ${{ github.event_name == 'workflow_dispatch' && inputs.etiquette || github.ref_name }}
