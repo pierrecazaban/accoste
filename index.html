@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accoste — prise en main à distance</title>
+<meta name="description" content="Accoste : contrôlez un ordinateur à distance, sans limite de durée de session. Windows, macOS et Android.">
+<link rel="icon" href="favicon.png">
+<style>
+  :root {
+    --fond: #f6faf9;
+    --surface: #ffffff;
+    --texte: #10231f;
+    --texte-doux: #4a5f5a;
+    --bord: #dbe7e4;
+    --accent: #0f8a7e;
+    --accent-fort: #0b5f57;
+    --accent-texte: #ffffff;
+    --accent-pale: #e3f4f1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fond: #0c1513;
+      --surface: #13201d;
+      --texte: #e6f0ee;
+      --texte-doux: #a3b7b2;
+      --bord: #243633;
+      --accent: #2bb8a8;
+      --accent-fort: #5fd4c6;
+      --accent-texte: #06201c;
+      --accent-pale: #16302c;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--fond);
+    color: var(--texte);
+    font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  a { color: var(--accent-fort); }
+  .conteneur { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+  header.barre { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; }
+  .marque { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 20px; color: var(--texte); text-decoration: none; }
+  .marque img { width: 34px; height: 34px; }
+  nav a { margin-left: 20px; color: var(--texte-doux); text-decoration: none; font-size: 15px; }
+  nav a:hover { color: var(--texte); }
+  .accroche { padding: 56px 0 40px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 40px; align-items: center; }
+  h1 { font-size: clamp(34px, 5vw, 52px); line-height: 1.1; margin: 0 0 18px; letter-spacing: -0.02em; }
+  .sous-titre { font-size: 19px; color: var(--texte-doux); margin: 0 0 28px; max-width: 34em; }
+  .visuel { display: flex; justify-content: center; }
+  .visuel img { width: min(240px, 60vw); filter: drop-shadow(0 18px 40px rgba(11, 95, 87, 0.25)); }
+  .bouton {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent); color: var(--accent-texte);
+    padding: 13px 22px; border-radius: 10px; font-weight: 600; text-decoration: none;
+  }
+  .bouton:hover { background: var(--accent-fort); }
+  .bouton.secondaire { background: transparent; color: var(--accent-fort); border: 1.5px solid var(--bord); }
+  .note { font-size: 14px; color: var(--texte-doux); margin-top: 12px; }
+  section { padding: 48px 0; }
+  h2 { font-size: 30px; margin: 0 0 24px; letter-spacing: -0.01em; }
+  .grille { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .carte { background: var(--surface); border: 1px solid var(--bord); border-radius: 14px; padding: 22px; }
+  .carte h3 { margin: 0 0 8px; font-size: 18px; }
+  .carte p { margin: 0; color: var(--texte-doux); font-size: 15.5px; }
+  .etape-num {
+    width: 30px; height: 30px; border-radius: 50%; background: var(--accent-pale); color: var(--accent-fort);
+    display: inline-flex; align-items: center; justify-content: center; font-weight: 700; margin-bottom: 10px;
+  }
+  .telechargements { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .telechargement { background: var(--surface); border: 1px solid var(--bord); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 10px; }
+  .telechargement.recommande { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-pale); }
+  .telechargement h3 { margin: 0; font-size: 19px; }
+  .telechargement .liens { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
+  .telechargement .liens a { font-size: 15px; }
+  .etiquette-reco { font-size: 12px; font-weight: 700; color: var(--accent-fort); text-transform: uppercase; letter-spacing: 0.06em; min-height: 1em; }
+  .tarif { background: var(--surface); border: 1px solid var(--bord); border-radius: 14px; padding: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .prix { font-size: 40px; font-weight: 800; margin: 4px 0; }
+  ul.coches { list-style: none; padding: 0; margin: 0; }
+  ul.coches li { padding-left: 26px; position: relative; margin: 6px 0; }
+  ul.coches li::before { content: "✓"; position: absolute; left: 0; color: var(--accent); font-weight: 800; }
+  details { background: var(--surface); border: 1px solid var(--bord); border-radius: 12px; padding: 14px 18px; margin-bottom: 10px; }
+  summary { cursor: pointer; font-weight: 600; }
+  details p, details ol { color: var(--texte-doux); margin: 10px 0 0; }
+  footer { border-top: 1px solid var(--bord); padding: 28px 0 40px; color: var(--texte-doux); font-size: 14px; }
+  footer a { color: var(--texte-doux); }
+  @media (max-width: 760px) {
+    .accroche { grid-template-columns: 1fr; padding-top: 24px; }
+    .visuel { order: -1; }
+    .grille, .telechargements, .tarif { grid-template-columns: 1fr; }
+    nav { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="conteneur">
+  <header class="barre">
+    <a class="marque" href="./"><img src="logo.svg" alt="">Accoste</a>
+    <nav>
+      <a href="#fonctionnement">Fonctionnement</a>
+      <a href="#telecharger">Télécharger</a>
+      <a href="#tarifs">Tarifs</a>
+      <a href="#questions">Questions</a>
+    </nav>
+  </header>
+
+  <div class="accroche">
+    <div>
+      <h1>Prenez la main sur un ordinateur, où qu'il soit.</h1>
+      <p class="sous-titre">Accoste relie vos appareils en quelques secondes : un identifiant, un mot de passe, et vous voyez l'écran distant. Aucune coupure au bout de deux heures, aucun code qui change sans arrêt.</p>
+      <a class="bouton" href="#telecharger" id="bouton-principal">Télécharger Accoste</a>
+      <p class="note">Windows, macOS et Android. Gratuit pendant le lancement.</p>
+    </div>
+    <div class="visuel"><img src="icone.png" alt="Icône d'Accoste"></div>
+  </div>
+
+  <section>
+    <div class="grille">
+      <div class="carte"><h3>Sans limite de durée</h3><p>Une session reste ouverte tant que vous en avez besoin, de jour comme de nuit.</p></div>
+      <div class="carte"><h3>Mot de passe permanent</h3><p>Choisissez votre mot de passe une fois pour toutes et reconnectez-vous en un instant, même sans personne devant l'écran.</p></div>
+      <div class="carte"><h3>Chiffré de bout en bout</h3><p>L'image, le clavier et les fichiers circulent chiffrés entre vos deux appareils. Notre serveur ne voit jamais votre écran.</p></div>
+    </div>
+  </section>
+
+  <section id="fonctionnement">
+    <h2>Comment ça marche</h2>
+    <div class="grille">
+      <div class="carte"><div class="etape-num">1</div><h3>Installez sur l'ordinateur à contrôler</h3><p>Accoste affiche son identifiant à 9 chiffres.</p></div>
+      <div class="carte"><div class="etape-num">2</div><h3>Fixez un mot de passe</h3><p>Réglages → Sécurité → « Utiliser un mot de passe permanent ».</p></div>
+      <div class="carte"><div class="etape-num">3</div><h3>Connectez-vous</h3><p>Depuis un autre appareil, saisissez l'identifiant et le mot de passe : l'écran apparaît.</p></div>
+    </div>
+  </section>
+
+  <section id="telecharger">
+    <h2>Télécharger</h2>
+    <div class="telechargements">
+      <div class="telechargement" data-os="windows">
+        <span class="etiquette-reco"></span>
+        <h3>Windows</h3>
+        <p class="note">Windows 10 et 11. Fonctionne sans installation ; un bouton permet de l'installer.</p>
+        <div class="liens">
+          <a class="bouton" href="https://github.com/pierrecazaban/accoste/releases/download/v1.5.3/accoste-1.5.3-x86_64.exe">Télécharger (.exe)</a>
+          <a href="https://github.com/pierrecazaban/accoste/releases/download/v1.5.3/accoste-1.5.3-aarch64.exe">Version ARM (Surface, Snapdragon)</a>
+        </div>
+      </div>
+      <div class="telechargement" data-os="mac">
+        <span class="etiquette-reco"></span>
+        <h3>macOS</h3>
+        <p class="note">macOS 12.3 et plus récent.</p>
+        <div class="liens">
+          <a class="bouton" href="https://github.com/pierrecazaban/accoste/releases/download/v1.5.3/accoste-1.5.3-aarch64.dmg">Mac Apple (M1 et suivants)</a>
+          <a href="https://github.com/pierrecazaban/accoste/releases/download/v1.5.3/accoste-1.5.3-x86_64.dmg">Mac Intel</a>
+        </div>
+      </div>
+      <div class="telechargement" data-os="android">
+        <span class="etiquette-reco"></span>
+        <h3>Android</h3>
+        <p class="note">Pour contrôler un ordinateur depuis votre téléphone, ou partager l'écran du téléphone.</p>
+        <div class="liens">
+          <a class="bouton" href="https://github.com/pierrecazaban/accoste/releases/download/v1.5.3/accoste-1.5.3-aarch64-signed.apk">Télécharger (.apk)</a>
+          <a href="https://github.com/pierrecazaban/accoste/releases/tag/v1.5.3">Autres architectures</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tarifs">
+    <h2>Tarifs</h2>
+    <div class="tarif">
+      <div>
+        <div class="etiquette-reco">Lancement</div>
+        <div class="prix">Gratuit</div>
+        <p class="note">Toutes les fonctions, pour un usage personnel ou professionnel, pendant la phase de lancement.</p>
+      </div>
+      <ul class="coches">
+        <li>Sessions sans limite de durée</li>
+        <li>Mot de passe permanent et accès sans surveillance</li>
+        <li>Transfert de fichiers et presse-papiers partagé</li>
+        <li>Plusieurs écrans, son, chat</li>
+        <li>Windows, macOS et Android</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="questions">
+    <h2>Questions fréquentes</h2>
+    <details>
+      <summary>Windows affiche « Windows a protégé votre ordinateur »</summary>
+      <p>L'application n'a pas encore de certificat de signature. Cliquez sur « Informations complémentaires », puis « Exécuter quand même ».</p>
+    </details>
+    <details>
+      <summary>macOS refuse d'ouvrir Accoste</summary>
+      <ol>
+        <li>Glissez Accoste dans le dossier Applications, puis ouvrez-le une première fois.</li>
+        <li>Allez dans Réglages Système → Confidentialité et sécurité, et cliquez sur « Ouvrir quand même » en face d'Accoste.</li>
+        <li>Pour être contrôlé à distance, autorisez Accoste dans « Enregistrement de l'écran » et « Accessibilité ».</li>
+      </ol>
+    </details>
+    <details>
+      <summary>Comment garder l'accès en permanence à mon ordinateur ?</summary>
+      <p>Installez Accoste (ne le lancez pas seulement en mode portable), fixez un mot de passe permanent et laissez l'ordinateur allumé et branché. Sur un portable Mac, gardez l'écran ouvert.</p>
+    </details>
+    <details>
+      <summary>Mes données passent-elles par vos serveurs ?</summary>
+      <p>Notre serveur met les appareils en relation. Quand une connexion directe est impossible, il relaie le flux, qui reste chiffré de bout en bout : nous ne pouvons pas le lire. Détails dans la <a href="confidentialite.html">politique de confidentialité</a>.</p>
+    </details>
+  </section>
+
+  <footer>
+    Accoste est basé sur <a href="https://github.com/rustdesk/rustdesk">RustDesk</a> © Purslane Tech Pte. Ltd., distribué sous licence AGPL-3.0.
+    Code source d'Accoste : <a href="https://github.com/pierrecazaban/accoste">github.com/pierrecazaban/accoste</a>.
+    · <a href="confidentialite.html">Confidentialité</a>
+    · <a href="https://github.com/pierrecazaban/accoste/issues">Contact</a>
+  </footer>
+</div>
+<script>
+  // Met en avant la version adaptée à l'appareil du visiteur.
+  (function () {
+    var ua = navigator.userAgent;
+    var os = /Android/i.test(ua) ? "android" : /iPhone|iPad|iPod/i.test(ua) ? null
+      : /Mac/i.test(ua) ? "mac" : /Win/i.test(ua) ? "windows" : null;
+    if (!os) return;
+    var carte = document.querySelector('.telechargement[data-os="' + os + '"]');
+    if (!carte) return;
+    carte.classList.add("recommande");
+    carte.querySelector(".etiquette-reco").textContent = "Pour votre appareil";
+    var lien = carte.querySelector(".liens .bouton");
+    var principal = document.getElementById("bouton-principal");
+    if (lien && principal) {
+      principal.href = lien.href;
+      principal.textContent = "Télécharger pour " + { android: "Android", mac: "Mac", windows: "Windows" }[os];
+    }
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Confidentialité — Accoste</title>
+<link rel="icon" href="favicon.png">
+<style>
+  :root { --fond: #f6faf9; --texte: #10231f; --texte-doux: #4a5f5a; --bord: #dbe7e4; --accent-fort: #0b5f57; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fond: #0c1513; --texte: #e6f0ee; --texte-doux: #a3b7b2; --bord: #243633; --accent-fort: #5fd4c6; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fond); color: var(--texte); font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 16px 56px; }
+  a { color: var(--accent-fort); }
+  h1 { font-size: 34px; margin: 24px 0 8px; }
+  h2 { font-size: 21px; margin: 32px 0 8px; }
+  p, li { color: var(--texte-doux); }
+  .retour { text-decoration: none; font-weight: 600; }
+  footer { border-top: 1px solid var(--bord); margin-top: 40px; padding-top: 20px; font-size: 14px; color: var(--texte-doux); }
+</style>
+</head>
+<body>
+<main>
+  <a class="retour" href="./">← Accoste</a>
+  <h1>Politique de confidentialité</h1>
+  <p>Dernière mise à jour : 21 novembre 2026.</p>
+
+  <h2>Ce que fait notre serveur</h2>
+  <p>Accoste utilise un serveur pour mettre deux appareils en relation et, quand une connexion directe est impossible, pour relayer la session. Ce serveur est hébergé par OVHcloud.</p>
+
+  <h2>Données traitées</h2>
+  <ul>
+    <li><strong>Identifiant de l'appareil</strong> (le numéro affiché par Accoste) et sa clé publique, pour que les autres appareils puissent le joindre.</li>
+    <li><strong>Adresse IP</strong> et état « en ligne », pour établir la connexion.</li>
+    <li><strong>Données techniques de connexion</strong> (horodatage, identifiants des deux appareils), dans les journaux du serveur, pour assurer le fonctionnement et la sécurité du service.</li>
+  </ul>
+
+  <h2>Ce que nous ne voyons pas</h2>
+  <p>Le contenu des sessions (image de l'écran, frappes au clavier, fichiers, presse-papiers, chat, son) est chiffré de bout en bout entre vos appareils. Même lorsqu'il passe par notre relais, nous ne pouvons pas le lire. Les mots de passe d'accès restent sur vos appareils.</p>
+
+  <h2>Ce que nous ne faisons pas</h2>
+  <p>Accoste ne demande pas de compte, n'affiche pas de publicité et ne vend ni ne partage de données avec des tiers.</p>
+
+  <h2>Durée de conservation</h2>
+  <p>L'identifiant et l'adresse IP d'un appareil sont conservés tant qu'il utilise le service. Les journaux techniques sont conservés au plus 12 mois.</p>
+
+  <h2>Vos droits</h2>
+  <p>Vous pouvez demander l'accès à vos données ou leur suppression, conformément au RGPD, en nous écrivant via <a href="https://github.com/pierrecazaban/accoste/issues">la page de contact</a>. Vous pouvez aussi saisir la CNIL.</p>
+
+  <footer>Accoste est basé sur RustDesk (AGPL-3.0). <a href="https://github.com/pierrecazaban/accoste">Code source</a>.</footer>
+</main>
+</body>
+</html>
