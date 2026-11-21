@@ -83,6 +83,11 @@ remplacer_re("flutter/macos/Runner/Configs/AppInfo.xcconfig", r"^PRODUCT_COPYRIG
 remplacer("flutter/macos/Runner/Info.plist", "<string>com.carriez.rustdesk</string>", f"<string>{ID_APPLI}</string>")
 remplacer("flutter/macos/Runner/Info.plist", "<string>rustdesk</string>", f"<string>{NOM.lower()}</string>")
 remplacer("flutter/macos/Runner.xcodeproj/project.pbxproj", "RustDesk.app", f"{NOM}.app")
+# Les réglages du projet Xcode l'emportent sur AppInfo.xcconfig : sans cette règle, l'appli garde
+# l'identifiant de RustDesk et partage ses autorisations macOS avec un RustDesk installé à côté.
+# (Le code remplace lui-même com.carriez.rustdesk par l'identifiant réel : voir correct_app_name.)
+remplacer("flutter/macos/Runner.xcodeproj/project.pbxproj", "PRODUCT_BUNDLE_IDENTIFIER = com.carriez.rustdesk;",
+          f"PRODUCT_BUNDLE_IDENTIFIER = {ID_APPLI};")
 remplacer("build.py", "Release/RustDesk.app/Contents/MacOS/", f"Release/{NOM}.app/Contents/MacOS/")
 
 # 4. Windows (propriétés du fichier .exe)
@@ -93,6 +98,13 @@ remplacer(RC, 'VALUE "FileDescription", "RustDesk Remote Desktop" "\\0"',
 remplacer_re(RC, r'VALUE "LegalCopyright", "(?!©)[^"]*" "\\0"',
              f'VALUE "LegalCopyright", "{COPYRIGHT}" "\\\\0"', f'"{COPYRIGHT}"')
 remplacer(RC, 'VALUE "ProductName", "RustDesk" "\\0"', f'VALUE "ProductName", "{NOM}" "\\0"')
+# Le .exe publié est l'« emballage » portable (libs/portable) : c'est sa fiche que Windows affiche.
+PORTABLE = "libs/portable/Cargo.toml"
+remplacer(PORTABLE, 'description = "RustDesk Remote Desktop"', f'description = "{NOM} Remote Desktop"')
+remplacer_re(PORTABLE, r'^LegalCopyright = "(?!©)[^"]*"$', f'LegalCopyright = "{COPYRIGHT}"', f'LegalCopyright = "{COPYRIGHT}"')
+remplacer(PORTABLE, 'ProductName = "RustDesk"', f'ProductName = "{NOM}"')
+remplacer(PORTABLE, 'OriginalFilename = "rustdesk.exe"', f'OriginalFilename = "{NOM.lower()}.exe"')
+remplacer(PORTABLE, 'FileDescription = "RustDesk Remote Desktop"', f'FileDescription = "{NOM} Remote Desktop"')
 
 # 5. Android
 remplacer("flutter/android/app/build.gradle", 'applicationId "com.carriez.flutter_hbb"', f'applicationId "{ID_APPLI}"')
