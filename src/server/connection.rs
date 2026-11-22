@@ -3428,7 +3428,22 @@ impl Connection {
                 Some(message::Union::MultiClipboards(_mcb)) => {
                     if self.should_handle_text_clipboard_message() && self.clipboard_enabled() {
                         #[cfg(not(any(target_os = "android", target_os = "ios")))]
-                        update_clipboard(_mcb.clipboards, ClipboardSide::Host);
+                        {
+                            let mut clipboards = _mcb.clipboards;
+                            if crate::clipboard::take_image_drop_marker(&mut clipboards) {
+                                // Accoste : image déposée sur l'écran distant. Le client envoie
+                                // « coller » juste après : le presse-papiers doit être prêt avant.
+                                let _ = hbb_common::tokio::task::spawn_blocking(move || {
+                                    crate::clipboard::update_clipboard_sync(
+                                        clipboards,
+                                        ClipboardSide::Host,
+                                    )
+                                })
+                                .await;
+                            } else {
+                                update_clipboard(clipboards, ClipboardSide::Host);
+                            }
+                        }
                         #[cfg(target_os = "android")]
                         crate::clipboard::handle_msg_multi_clipboards(_mcb);
                     }

@@ -708,6 +708,19 @@ pub fn session_input_string(session_id: SessionID, value: String) {
     }
 }
 
+/// Accoste : image déposée sur l'écran distant. Renvoie "" si elle est partie, sinon l'erreur.
+pub fn session_send_image_drop(session_id: SessionID, path: String) -> String {
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
+    if let Some(session) = sessions::get_session_by_session_id(&session_id) {
+        if let Err(e) = session.send_image_drop(&path) {
+            return e.to_string();
+        }
+    }
+    #[cfg(any(target_os = "android", target_os = "ios"))]
+    let _ = (session_id, path);
+    String::new()
+}
+
 // chat_client_mode
 pub fn session_send_chat(session_id: SessionID, text: String) {
     if let Some(session) = sessions::get_session_by_session_id(&session_id) {

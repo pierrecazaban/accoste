@@ -635,6 +635,17 @@ impl std::fmt::Display for ClipboardSide {
 }
 
 pub use proto::get_msg_if_not_support_multi_clip;
+pub use proto::take_image_drop_marker;
+#[cfg(not(any(target_os = "android", target_os = "ios")))]
+pub use proto::image_drop_msg;
+
+/// Accoste : applique une image déposée sur l'écran distant sans passer par un fil séparé,
+/// pour qu'elle soit dans le presse-papiers avant le « coller » envoyé juste après.
+#[cfg(not(target_os = "android"))]
+pub fn update_clipboard_sync(multi_clipboards: Vec<Clipboard>, side: ClipboardSide) {
+    update_clipboard_(multi_clipboards, side);
+}
+
 mod proto {
     #[cfg(not(target_os = "android"))]
     use arboard::ClipboardData;
@@ -783,6 +794,68 @@ mod proto {
             .into_iter()
             .filter_map(from_clipboard)
             .collect()
+    }
+
+    /// Accoste : marque jointe aux images déposées sur l'écran distant (voir `image_drop_msg`).
+    const IMAGE_DROP_MARKER: &str = "accoste-depot-image";
+
+    /// Retire la marque « image déposée » ; renvoie vrai si elle était présente.
+    pub fn take_image_drop_marker(clipboards: &mut Vec<Clipboard>) -> bool {
+        let before = clipboards.len();
+        clipboards.retain(|c| {
+            !(c.format.enum_value() == Ok(ClipboardFormat::Special)
+                && c.special_name == IMAGE_DROP_MARKER)
+        });
+        clipboards.len() != before
+    }
+
+    /// Accoste : prépare le message qui place l'image `path` dans le presse-papiers distant.
+    /// Toujours en PNG ; en plus en RGBA pour Windows, dont beaucoup d'applis ignorent le PNG.
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
+    pub fn image_drop_msg(path: &str, with_rgba: bool) -> hbb_common::ResultType<Message> {
+        const MAX_BYTES: u64 = 40 * 1024 * 1024;
+        if std::fs::metadata(path)?.len() > MAX_BYTES {
+            hbb_common::bail!("Image trop lourde (40 Mo maximum)");
+        }
+        let bytes = std::fs::read(path)?;
+        let img = image::load_from_memory(&bytes)?;
+        let png = if bytes.starts_with(b"\x89PNG\r\n\x1a\n") {
+            bytes
+        } else {
+            let mut out = std::io::Cursor::new(Vec::new());
+            img.write_to(&mut out, image::ImageOutputFormat::Png)?;
+            out.into_inner()
+        };
+        let mut clipboards = vec![Clipboard {
+            compress: false,
+            content: png.into(),
+            format: ClipboardFormat::ImagePng.into(),
+            ..Default::default()
+        }];
+        if with_rgba {
+            let rgba = img.to_rgba8();
+            let (width, height) = rgba.dimensions();
+            let raw = rgba.into_raw();
+            clipboards.push(Clipboard {
+                compress: true,
+                content: compress_func(&raw).into(),
+                width: width as _,
+                height: height as _,
+                format: ClipboardFormat::ImageRgba.into(),
+                ..Default::default()
+            });
+        }
+        clipboards.push(Clipboard {
+            format: ClipboardFormat::Special.into(),
+            special_name: IMAGE_DROP_MARKER.to_owned(),
+            ..Default::default()
+        });
+        let mut msg = Message::new();
+        msg.set_multi_clipboards(MultiClipboards {
+            clipboards,
+            ..Default::default()
+        });
+        Ok(msg)
     }
 
     pub fn get_msg_if_not_support_multi_clip(

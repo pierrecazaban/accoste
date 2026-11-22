@@ -17,6 +17,7 @@ configurée pour utiliser son propre serveur. Le code d'origine reste la propri�
 | Icônes et logos | `accoste/icones/` (programme de dessin + script de génération) |
 | Identifiants d'appli (`fr.accoste.app`), libellés, liens, mentions légales | `accoste/appliquer_marque.py` |
 | Compilation | `.github/workflows/accoste.yml` → `flutter-build.yml` réduit à Windows, macOS et Android |
+| Glisser-déposer d'images sur l'écran distant (collées à l'endroit du dépôt) | `flutter/lib/desktop/pages/remote_page.dart` (`_onImagesDropped`), `src/clipboard.rs` (`image_drop_msg`), `src/server/connection.rs` |
 
 `libs/hbb_common` est intégré directement au dépôt (ce n'est plus un sous-module) pour que la
 configuration du serveur fasse partie du code publié.

@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/scheduler.dart';
@@ -759,7 +761,7 @@ class _RemotePageState extends State<RemotePage>
                     }
                   },
                   inputModel: _ffi.inputModel,
-                  child: getBodyForDesktop(context))),
+                  child: _buildImageDropTarget(getBodyForDesktop(context)))),
           Stack(
             children: [
               _ffi.ffiModel.pi.isSet.isTrue &&
@@ -956,6 +958,82 @@ class _RemotePageState extends State<RemotePage>
       inputModel: _ffi.inputModel,
       child: child,
     );
+  }
+
+  // Accoste : une image glissée sur l'écran distant y est collée à l'endroit du dépôt
+  // (clic à cet endroit, image mise dans le presse-papiers distant, puis ⌘V / Ctrl+V).
+  static const _kImageDropExtensions = {
+    'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'tif', 'tiff'
+  };
+  bool _imageDropBusy = false;
+
+  Widget _buildImageDropTarget(Widget child) {
+    return DropTarget(
+      onDragDone: (details) => _onImagesDropped(details),
+      child: child,
+    );
+  }
+
+  Future<void> _onImagesDropped(DropDoneDetails details) async {
+    if (_imageDropBusy) return;
+    final paths = details.files
+        .map((f) => f.path)
+        .where((p) =>
+            _kImageDropExtensions.contains(p.split('.').last.toLowerCase()))
+        .toList();
+    if (paths.isEmpty) {
+      showToast(
+          'Seules les images peuvent être déposées ici. Pour les autres fichiers, utilisez le transfert de fichiers.');
+      return;
+    }
+    final inputModel = _ffi.inputModel;
+    if (_ffi.ffiModel.isPeerAndroid) {
+      showToast('Le dépôt d\'images n\'est pas disponible vers Android.');
+      return;
+    }
+    if (inputModel.isViewOnly || !inputModel.keyboardPerm) {
+      showToast(
+          'Le clavier et la souris sont désactivés pour cette session : impossible de coller l\'image.');
+      return;
+    }
+    if (bind.sessionGetToggleOptionSync(
+        sessionId: sessionId, arg: 'disable-clipboard')) {
+      showToast(
+          'Le presse-papiers est désactivé pour cette session : activez-le pour déposer des images.');
+      return;
+    }
+    _imageDropBusy = true;
+    try {
+      // Clic à l'endroit du dépôt pour activer la zone visée (par ex. le champ de message).
+      inputModel.onPointHoverImage(PointerHoverEvent(
+          kind: PointerDeviceKind.mouse, position: details.globalPosition));
+      await Future.delayed(const Duration(milliseconds: 80));
+      await inputModel.tap(MouseButtons.left);
+      final isMacPeer = _ffi.ffiModel.pi.platform == kPeerPlatformMacOS;
+      for (var i = 0; i < paths.length; i++) {
+        final err =
+            await bind.sessionSendImageDrop(sessionId: sessionId, path: paths[i]);
+        if (err.isNotEmpty) {
+          showToast(err);
+          continue;
+        }
+        await bind.sessionInputKey(
+            sessionId: sessionId,
+            name: 'v',
+            down: false,
+            press: true,
+            alt: false,
+            ctrl: !isMacPeer,
+            shift: false,
+            command: isMacPeer);
+        if (i + 1 < paths.length) {
+          // Laisse l'appli distante lire l'image avant de la remplacer par la suivante.
+          await Future.delayed(const Duration(milliseconds: 1200));
+        }
+      }
+    } finally {
+      _imageDropBusy = false;
+    }
   }
 
   Widget getBodyForDesktop(BuildContext context) {

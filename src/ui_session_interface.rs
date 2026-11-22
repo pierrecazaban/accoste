@@ -781,6 +781,15 @@ impl<T: InvokeUiSession> Session<T> {
         self.send(Data::Message(msg_out));
     }
 
+    /// Accoste : met l'image `path` (déposée sur l'écran distant) dans le presse-papiers distant.
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
+    pub fn send_image_drop(&self, path: &str) -> hbb_common::ResultType<()> {
+        let with_rgba = self.peer_platform() == "Windows";
+        let msg = crate::clipboard::image_drop_msg(path, with_rgba)?;
+        self.send(Data::Message(msg));
+        Ok(())
+    }
+
     pub fn send_chat(&self, text: String) {
         let mut misc = Misc::new();
         misc.set_chat_message(ChatMessage {
